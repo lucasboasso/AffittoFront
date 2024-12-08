@@ -45,6 +45,8 @@ export default function ClienteForm({ clienteCuit = null }) {
 			...data,
 			usuario: session.user.id,
 		};
+		console.log("Datos enviados:", data);
+
 		if (!cliente) {
 			Cliente.crearCliente(data).finally(() => {
 				window.location.href = "/clientes";

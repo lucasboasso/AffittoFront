@@ -17,20 +17,41 @@ class Cliente {
 	}
 
 	static async crearCliente(data) {
-		//fetch a la api para guardar el cliente
-		fetch(this.URL, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
+		const clienteData = {
+			nombre_razon_social: data.nombre,
+			cuit: data.cuit,
+			condicion_iva: data.iva,
+			email: data.mail,
+			celular: data.celular,
+			telefono: data.telefono,
+			domicilio: {
+				localidad: data.localidad,
+				calle: data.calle,
+				altura: data.altura,
+				piso: data.piso,
+				dpto: data.dpto,
 			},
-			body: JSON.stringify({
-				...new Cliente(data),
-				usuario: data.usuario,
-			}),
-		})
-			.then((response) => response.json())
-			.then((data) => console.log(data))
-			.catch((error) => console.error("Error:", error));
+			usuario: data.usuario,
+		};
+
+		try {
+			const response = await fetch(this.URL, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(clienteData),
+			});
+
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`);
+			}
+
+			const result = await response.json();
+			console.log(result);
+		} catch (error) {
+			console.error("Error:", error);
+		}
 	}
 
 	static async fetchClientes() {
@@ -57,25 +78,45 @@ class Cliente {
 		return response;
 	}
 
-	static async editarCliente(clienteId, data) {
-		const response = fetch(this.URL + `/${clienteId}`, {
-			method: "PUT",
-			headers: {
-				"Content-Type": "application/json",
+	static async editarCliente(cuit, data) {
+		const clienteData = {
+			nombre_razon_social: data.nombre,
+			cuit: data.cuit,
+			condicion_iva: data.iva,
+			email: data.mail,
+			celular: data.celular,
+			telefono: data.telefono,
+			domicilio: {
+				localidad: data.localidad,
+				calle: data.calle,
+				altura: data.altura,
+				piso: data.piso,
+				dpto: data.dpto,
 			},
-			body: JSON.stringify({
-				...new Cliente({
-					...data,
-					nombre: data.nombre_razon_social,
-				}),
-				usuario: data.usuario,
-			}),
-		})
-			.then((response) => response.json())
-			.then((data) => console.log(data))
-			.catch((error) => console.error("Error:", error));
-		return response;
+			usuario: data.usuario,
+		};
+
+		try {
+			const response = await fetch(`${this.URL}/${cuit}`, {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(clienteData),
+			});
+
+			if (!response.ok) {
+				const errorDetails = await response.text();
+				throw new Error(`HTTP error! status: ${response.status}, details: ${errorDetails}`);
+			}
+
+			const result = await response.json();
+			console.log(result);
+		} catch (error) {
+			console.error("Error:", error);
+		}
 	}
+
 }
 
 export default Cliente;

@@ -78,7 +78,7 @@ describe("Verify create cliente", () => {
 		cy.get("#piso").type(clienteFalso.domicilio.piso);
 		cy.get("#dpto").type(clienteFalso.domicilio.dpto);
 		cy.get("#boton-enviar").click();
-		cy.emitAsync("wait", 1000).then(() => {
+		cy.wait(1000).then(() => {
 			cy.url().should("include", "/clientes");
 			cy.get("td").should("contain", clienteFalso.nombre_razon_social);
 			cy.get("td").should("contain", clienteFalso.celular);
