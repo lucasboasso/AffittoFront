@@ -11,6 +11,9 @@ import { mostrarMontoSeparado } from "@/app/utils/utils";
 export default function PropiedadesPage() {
 	const [props, setProps] = useState([]);
 	const [filtradas, setFiltradas] = useState([]);
+	const [currentPage, setCurrentPage] = useState(1);
+	const itemsPerPage = 10;
+
 	const {
 		register,
 		handleSubmit,
@@ -19,7 +22,7 @@ export default function PropiedadesPage() {
 		formState: { errors },
 	} = useForm({
 		defaultValues: {
-			operacion: "Alquiler",
+			operacion: "",
 		},
 	});
 
@@ -27,11 +30,7 @@ export default function PropiedadesPage() {
 		async function fetchData() {
 			const propiedades = await Propiedad.fetchPropiedades();
 			setProps(propiedades);
-			setFiltradas(
-				propiedades.filter((prop) =>
-					prop.operaciones.some((op) => op.tipo === "Alquiler")
-				)
-			);
+			setFiltradas(propiedades);
 		}
 		fetchData();
 	}, []);
@@ -56,24 +55,28 @@ export default function PropiedadesPage() {
 			return true;
 		});
 		setFiltradas(listaFiltrada);
+		setCurrentPage(1);
 	};
 
 	const limpiarFiltros = () => {
-		setFiltradas(
-			props.filter((prop) =>
-				prop.operaciones.some((op) => op.tipo === "Alquiler")
-			)
-		);
-		setValue("operacion", "Alquiler");
+		setFiltradas(props);
+		setValue("operacion", "");
 		setValue("tipo", "");
 		setValue("moneda", "");
 		setValue("min", "");
 		setValue("max", "");
+		setCurrentPage(1);
 	};
+
+	const startIndex = (currentPage - 1) * itemsPerPage;
+	const endIndex = startIndex + itemsPerPage;
+	const currentItems = filtradas.slice(startIndex, endIndex);
+	const totalPages = Math.ceil(filtradas.length / itemsPerPage);
 
 	const mostrarSoloAlquiladas = () => {
 		const alquiladas = props.filter((prop) => prop.estado === "Alquilada");
 		setFiltradas(alquiladas);
+		setCurrentPage(1);
 	};
 
 	return (
@@ -194,7 +197,7 @@ export default function PropiedadesPage() {
 								</td>
 							</tr>
 						) : (
-							filtradas.map((prop, index) => (
+							currentItems.map((prop, index) => (
 								<tr
 									key={index}
 									className={
@@ -247,6 +250,37 @@ export default function PropiedadesPage() {
 						)}
 					</tbody>
 				</table>
+				<div className="flex justify-between items-center mt-4">
+					<button
+						disabled={currentPage === 1}
+						onClick={() => setCurrentPage(currentPage - 1)}
+						className="bg-blue-200 hover:bg-blue-300 text-blue-800 font-bold py-2 px-4 rounded disabled:opacity-50"
+					>
+						Anterior
+					</button>
+					<div>
+						{Array.from({ length: totalPages }, (_, index) => (
+							<button
+								key={index}
+								onClick={() => setCurrentPage(index + 1)}
+								className={`mx-1 px-3 py-2 rounded ${
+									currentPage === index + 1
+										? "bg-blue-500 text-white"
+										: "bg-blue-200 hover:bg-blue-300 text-blue-800"
+								}`}
+							>
+								{index + 1}
+							</button>
+						))}
+					</div>
+					<button
+						disabled={currentPage === totalPages}
+						onClick={() => setCurrentPage(currentPage + 1)}
+						className="bg-blue-200 hover:bg-blue-300 text-blue-800 font-bold py-2 px-4 rounded disabled:opacity-50"
+					>
+						Siguiente
+					</button>
+				</div>
 			</div>
 		</div>
 	);
