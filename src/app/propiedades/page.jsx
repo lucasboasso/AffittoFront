@@ -99,12 +99,7 @@ export default function PropiedadesPage() {
 							</button>
 							<button
 								className="bg-blue-200 hover:bg-blue-300 text-blue-800 font-bold py-2 px-4 rounded ml-2"
-								onClick={() => {
-									setFiltradas(props);
-									{
-										setValue("operacion", "");
-									}
-								}}
+								onClick={limpiarFiltros}
 							>
 								Ver Todas
 							</button>
